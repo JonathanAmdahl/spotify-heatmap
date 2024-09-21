@@ -6,4 +6,9 @@
 If you forget any of this, you can look here again or look at 'package.json' as it contains the pre-made scripts to reuse.
 
 # Hosting / Deployment
-Coming soon
+Every time you update the site, you should watch build to make sure it updates.
+This way we don't keep updating the site and have a backlog of a ton of errors.
+
+https://spotify-heatmap.vercel.app/ <-- If your update worked, then you should see the changes here in ~2-3 minutes
+
+Whenever you push to GitHub, Vercel will automatically start building the new version and the live version will be swapped out when its ready (if successful)
