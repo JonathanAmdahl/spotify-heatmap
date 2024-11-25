@@ -1,0 +1,2 @@
+SEARCH for artist by artist by name 
+GET popularity data for an artist

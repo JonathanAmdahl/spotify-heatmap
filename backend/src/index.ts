@@ -1,19 +1,37 @@
 import express from 'express';
-import { Pool } from 'pg';
+import dotenv from 'dotenv';
+import fs from 'node:fs';
+import path from 'node:path';
+import pool, { initializePool } from './db';
 
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
+// Middleware
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// Wrap the dynamic route loading in an async function
+const loadRoutes = async () => {
+  const routesPath = path.join(__dirname, 'routes');
+  for (const file of fs.readdirSync(routesPath)) {
+    if (file.endsWith('.ts')) {
+      const route = `/${file.split('.')[0] === 'index' ? '' : file.split('.')[0]}`;
+      const routeModule = await import(`./routes/${file}`);
+      app.use(route, routeModule.default);
+    }
+  }
+};
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Call the async function and then start the server
+loadRoutes()
+.then(async () => {
+  await initializePool();
+  if(!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+   throw new Error('Spotify credentials not found, please set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in .env');
+  }
+}).then(() => {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 });
