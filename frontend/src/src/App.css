@@ -1,0 +1,14 @@
+body {
+    color: white;
+    background-color: #000000;
+}
+
+img {
+    width: 100px;
+    height: auto;
+}
+
+label {
+    margin-left: 500px;
+    margin-right:20px;
+}
