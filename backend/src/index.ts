@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import fs from 'node:fs';
 import path from 'node:path';
+import cors from 'cors';
 import pool, { initializePool } from './db';
 
 dotenv.config();
@@ -9,6 +10,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 // Wrap the dynamic route loading in an async function

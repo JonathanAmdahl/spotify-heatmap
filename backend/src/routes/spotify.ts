@@ -9,6 +9,7 @@ import insertTopTracksIntoDatabase from '../queries/track';
 const router = express.Router();
 
 router.get('/search-artist', async (req: Request, res: Response) => {
+    console.log('Received search request for:', req.query.q);
     const SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search';
     const artistName = req.query.q as string;
 
