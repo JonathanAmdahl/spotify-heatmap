@@ -38,12 +38,45 @@ function App() {
         }
     };
 
+    // Dropdown menu (Allow us to Select)
+    const DropdownMenu = (artist: string) => {
+        setQuery(artist);  
+        handleSearchString(artist); 
+        setArtists([]);
+    };
+
+    // This will update the search as we type 
+    const handleSearchString = async (value: string) => {
+        if (!value.trim()) return;  
+
+        setLoading(true); 
+        setError(null);  
+
+        try { const response = await axios.get('http://localhost:3001/spotify/search-artist', {
+                params: { q: value },
+            });
+            setArtists(response.data);  
+        } catch (err) {
+            setError('Failed to search for artists. Please try again.');
+        } 
+        finally {
+            setLoading(false);
+        }
+    };
+
     //function to handle the 'Enter' key press for search
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             //calls the function to handle the search
             handleSearch();
         }
+    };
+
+    // This function will show the artist name as the user is typing
+    const handleDynamicTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;          
+        setQuery(value);                
+        handleSearchString(value);  
     };
 
     //building webpage view
@@ -65,7 +98,8 @@ function App() {
                         placeholder="Enter Artist..."
                         //set value in input as the query to send to backend api
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        
+                        onChange={handleDynamicTyping}
                         onKeyPress={handleKeyPress}
                     />
                 </div>
@@ -74,17 +108,31 @@ function App() {
             {loading && <p>Loading...</p>} {/* show loading message */}
             {error && <p style={{ color: 'red' }}>{error}</p>} {/* show error message */}
 
-            <div className="results">
+            {/* Dropdown menu 
+                As the user types into the search bar, we will be able to press the artist name
+            */}
+            {query && artists.length > 0 && (
+            <div className="dropdown">
+                <ul>
+                    {artists.map((artist: any, index: number) => (
+                        <li key={index} onClick={() => DropdownMenu(artist.name)}>{artist.name}</li>))}
+                </ul>
+            </div>
+            )}
+
+            {/*<div className="results">
+                
                 {artists.length > 0 ? (
                     <ul>
                         {artists.map((artist: any, index: number) => (
                             <li key={index}>{artist.name}</li>
+                                
                         ))}
                     </ul>
                 ) : (
                     <p>No results found</p>
                 )}
-            </div>
+            </div>*/}
         </div>
     );
 }
