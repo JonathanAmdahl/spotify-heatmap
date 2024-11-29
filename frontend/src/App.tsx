@@ -12,7 +12,10 @@ function App() {
     const [error, setError] = useState<string | null>(null);
 
     //function to handle search query & calls backend search-artist api
-    const handleSearch = async () => {
+    const Search = async () => {
+        //Use var for debugging
+        let check: number = 0;
+        
         //returns if empty or only whitespace
         if (!query.trim()) return;
         //start loading so user knows it's in progress
@@ -30,23 +33,39 @@ function App() {
         }
         //catch any errors and display on page an error
         catch (err) {
+            
+            //Set check to -1 to indicate error, print to log incase
+            check = -1;
+            console.log(check);
             setError('Failed to search for artists. Please try again.'); 
         }
         //end the loading text
         finally {
+
+            //Set check to one to end loading text, print if needed
+            check = 1;
+            console.log(check);
             setLoading(false);
         }
     };
 
-    // Dropdown menu (Allow us to Select)
+    // Dropdown menu (@allows us to select the artist when they show up)
     const DropdownMenu = (artist: string) => {
+        
+        var query_length = 0;
         setQuery(artist);  
-        handleSearchString(artist); 
-        setArtists([]);
+        search_string(artist); 
+        //Check query length, updated to new query
+        query_length = query.length;
+        //console.log(query_length);
     };
 
     // This will update the search as we type 
-    const handleSearchString = async (value: string) => {
+    const search_string = async (value: string) => {
+        
+        //Use var for debugging
+        let check: number = 0;
+        
         if (!value.trim()) return;  
 
         setLoading(true); 
@@ -57,31 +76,46 @@ function App() {
             });
             setArtists(response.data);  
         } catch (err) {
+            //Set check to -1 to indicate error, print to log incase
+            check = -1;
+            console.log(check);
+           
             setError('Failed to search for artists. Please try again.');
         } 
-        finally {
-            setLoading(false);
-        }
+        finally {setLoading(false);
+            //Set check to -1 to indicate error, print to log incase
+            check = -1;
+            console.log(check);}
     };
 
+   
     //function to handle the 'Enter' key press for search
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const KeyPresses = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             //calls the function to handle the search
-            handleSearch();
+            Search();
         }
     };
 
-    // This function will show the artist name as the user is typing
-    const handleDynamicTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;          
-        setQuery(value);                
-        handleSearchString(value);  
+    // This function will show the artist name as the user is typing, eventually bringing them to the top
+    const TypingQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let logged = true;
+        if(logged){
+            const value = e.target.value;          
+            setQuery(value);                
+            search_string(value);  
+        }
+        logged = false;  
     };
 
+    
     //building webpage view
     return (
         <div className="App">
+
+            {/*Add spotify image to top left (imitate spotify pg)
+              We will also add a search bar to the center to look up artists 
+            */}
             <img src="/spotify.png" alt="Spotify logo" /> 
             <label htmlFor="search">Search for Artists</label>
             <div className="search-container">
@@ -89,7 +123,7 @@ function App() {
                     <FaSearch
                         //trigger search when the icon is clicked
                         className="search-icon"
-                        onClick={handleSearch}
+                        onClick={Search}
                     />
                     <input
                         type="search"
@@ -99,23 +133,23 @@ function App() {
                         //set value in input as the query to send to backend api
                         value={query}
                         
-                        onChange={handleDynamicTyping}
-                        onKeyPress={handleKeyPress}
+                        onChange={TypingQuery}
+                        onKeyPress={KeyPresses}
                     />
                 </div>
             </div>
 
-            {loading && <p>Loading...</p>} {/* show loading message */}
-            {error && <p style={{ color: 'red' }}>{error}</p>} {/* show error message */}
+            {/* load message */}
+            {loading && <p>Loading...</p>} 
+            {error && <p style={{ color: 'red' }}>{error}</p>} 
 
             {/* Dropdown menu 
                 As the user types into the search bar, we will be able to press the artist name
             */}
-            {query && artists.length > 0 && (
-            <div className="dropdown">
+            {query && artists.length > 0 && (<div className="dropdown">
                 <ul>
                     {artists.map((artist: any, index: number) => (
-                        <li key={index} onClick={() => DropdownMenu(artist.name)}>{artist.name}</li>))}
+                    <li key={index} onClick={() => DropdownMenu(artist.name)}>{artist.name}</li>))}
                 </ul>
             </div>
             )}
