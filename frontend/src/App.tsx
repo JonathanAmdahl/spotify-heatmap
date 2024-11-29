@@ -71,7 +71,8 @@ function App() {
         setLoading(true); 
         setError(null);  
 
-        try { const response = await axios.get('http://localhost:3001/spotify/search-artist', {
+        try { 
+            const response = await axios.get(process.env.NEXT_PUBLIC_API_URL + 'spotify/search-artist', {
                 params: { q: value },
             });
             setArtists(response.data);  

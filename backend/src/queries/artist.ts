@@ -6,7 +6,7 @@ export default async function insertArtistsIntoDatabase(artists: Artist[]) {
 
     try {
          // Prepare values for batch insertion
-         const values: any[] = [];
+         const values: unknown[] = [];
          const queryParts: string[] = [];
  
          artists.forEach((artist, index) => {
@@ -46,6 +46,78 @@ export default async function insertArtistsIntoDatabase(artists: Artist[]) {
          console.log(`${artists.length} artists inserted into the database.`);
     } catch (err) {
         console.error('Error inserting artists into the database:', err);
+    } finally {
+        client.release();
+    }
+}
+
+export async function getArtistWithTracksAndAlbums(artistId: string) {
+    const client = await pool.connect();
+
+    try {
+        const query = `
+            SELECT
+                a.artist_id,
+                a.name AS artist_name,
+                a.genre,
+                a.popularity AS artist_popularity,
+                a.href AS artist_href,
+                jsonb_build_object(
+                    'height', a.image_height,
+                    'width', a.image_width,
+                    'link', a.image_link
+                ) AS artist_image,
+                COALESCE(
+                    jsonb_agg(DISTINCT jsonb_build_object(
+                        'track_id', t.track_id,
+                        'name', t.name,
+                        'track_number', t.track_number,
+                        'popularity', t.popularity,
+                        'href', t.href,
+                        'image', jsonb_build_object(
+                            'height', t.image_height,
+                            'width', t.image_width,
+                            'link', t.image_link
+                        ),
+                        'album', jsonb_build_object(
+                            'album_id', al.album_id,
+                            'name', al.name,
+                            'album_type', al.album_type,
+                            'total_tracks', al.total_tracks,
+                            'href', al.href,
+                            'image', jsonb_build_object(
+                                'height', al.image_height,
+                                'width', al.image_width,
+                                'link', al.image_link
+                            )
+                        )
+                    )),
+                    '[]'::jsonb
+                ) AS tracks
+            FROM
+                Artist a
+            LEFT JOIN
+                TrackMadeBy tm ON a.artist_id = tm.artist_id
+            LEFT JOIN
+                Track t ON tm.track_id = t.track_id
+            LEFT JOIN
+                Album al ON t.album_id = al.album_id
+            WHERE
+                a.artist_id = $1
+            GROUP BY
+                a.artist_id, a.name, a.genre, a.popularity, a.href, a.image_height, a.image_width, a.image_link;
+        `;
+
+        const result = await client.query(query, [artistId]);
+
+        if (result.rows.length === 0) {
+            return null; // Return null if no artist is found
+        }
+
+        return result.rows[0]; // Return the single artist with grouped tracks
+    } catch (error) {
+        console.error("Error fetching artist with tracks and albums:", error);
+        throw error;
     } finally {
         client.release();
     }
