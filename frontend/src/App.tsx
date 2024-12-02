@@ -159,7 +159,7 @@ function App() {
 
         setMenu(false);
     };
-     
+
     //building webpage view
     return (
         <div className="App">
@@ -230,9 +230,9 @@ function App() {
             )}
 
             {/* 
-             this willl show the artist's top track in the form of a heatmap
-             the minimum size is set to 130px just in case the artist's top tracks have a very
-             lowe popularity, it should also show on each bubble the track name and album cover
+             this willl show the artist's top track in the form of a heatmap and randomize
+             it's position so that it's somewhere in the heatmap container,
+             it should also show on each bubble the track name and album cover
              */}
             {topTracks.length > 0 && (
                 <div className="heatmap-container">
@@ -243,16 +243,17 @@ function App() {
                                 key={index}
                                 className="heatmap-bubble"
                                 style={{
-                                    width: `${Math.max(track.popularity * 2), 130}px`,
-                                    height: `${Math.max(track.popularity * 2), 130}px`,
-
+                                    width: `${(track.popularity * 3)}px`,
+                                    height: `${(track.popularity * 3)}px`,
+                                    left: `${(Math.random() * (2200 - track.popularity * 3))}px`,
+                                    top: `${(Math.random() * (1000 - track.popularity * 3))}px`,
                                 }}
                                 title={track.name}
                             >
-                                <img
-                                    src={track.album.image.url}
-                                    className="album-cover"
-                                />
+                                <img src={track.album.images?.[0]?.url || null} alt={track.album.name} />
+
+
+
                                 <span className="track-name">{track.name}</span>
                             </div>
                         )
@@ -260,6 +261,7 @@ function App() {
                     }
                 </div>
             )}
+
 
         </div>
     );

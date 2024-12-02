@@ -160,9 +160,9 @@ button {
 
 .heatmap-container {
     position: relative;
-    width: 1500px; 
-    height: 1500px; 
-    border-radius: 50%;
+    width: 2200px;
+    height: 1000px;
+    left: 100px;
     overflow: hidden;
     margin-top: 20px;
     display: flex;
@@ -194,8 +194,8 @@ button {
 
 .track-name {
     position: absolute;
-    bottom: 10px;
     left: 50%;
+    align-items: center;
     transform: translateX(-50%);
     font-weight: bold;
     font-size: 12px;
@@ -204,9 +204,17 @@ button {
     z-index: 1;
 }
 
-.album-cover {
+.heatmap-bubble img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
     width: 100%; 
     height: auto;
-    border-radius: 50%; 
-    object-fit: cover;
+}
+
+.heatmap-bubble:hover img {
+    opacity: 1; 
 }
