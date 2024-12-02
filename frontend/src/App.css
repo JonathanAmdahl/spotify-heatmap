@@ -1,3 +1,5 @@
+/* WEBPaGE UI */
+
 body {
     color: white;
     background-color: #191414;
@@ -31,21 +33,51 @@ label {
     min-height: 100vh;
 }
 
+/* ARTIST DETAILS UI */
+
+.artist-image {
+    top: 210px;
+    left: 50px;
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.artist-details h2 {
+    position: absolute;
+    top: 430px;
+    left: 50px; 
+    width: 200px; 
+    background-color: #191414;
+    color: white; 
+    border: 1px solid #333; 
+    border-radius: 5px; 
+    padding: 10px; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.artist-details h3 {
+    position: absolute; 
+    top: 490px; 
+    left: 50px; 
+    width: 200px; 
+    background-color: #191414;
+    color: white; 
+    border: 1px solid #333;
+    border-radius: 5px; 
+    padding: 10px; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); 
+}
+
+/* SEARCH BAR UI */
+
 .search-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     margin-top: 20px;
-}
-
-.genre ul {
-    flex-direction: row; 
-}
-
-.genre li {
-    display: inline-block; 
-    margin-right: 15px; 
 }
 
 .search-input-container {
@@ -88,4 +120,93 @@ label {
 
 button {
     margin-left: 10px;
+}
+
+/* DROP DOWN UI */
+
+.dropdown {
+    position: absolute;
+    top: 205px; 
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #191414;
+    color: white; 
+    border: 1px solid #333; 
+    border-radius: 5px; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    width: 300px;
+    z-index: 1000;
+    padding: 5px 0;
+}
+
+    .dropdown ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .dropdown li {
+        padding: 5px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+        .dropdown li:hover {
+            background-color: #282828;
+        }
+
+
+/* HEATMAP UI */
+
+.heatmap-container {
+    position: relative;
+    width: 1500px; 
+    height: 1500px; 
+    border-radius: 50%;
+    overflow: hidden;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+
+.heatmap-bubble {
+    position: absolute;
+    background-color: #1db954;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 10px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.heatmap-bubble:hover {
+    transform: scale(1.1);
+}
+
+.track-name {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    z-index: 1;
+}
+
+.album-cover {
+    width: 100%; 
+    height: auto;
+    border-radius: 50%; 
+    object-fit: cover;
 }

@@ -7,15 +7,21 @@ import { FaSearch } from 'react-icons/fa';
 
 function App() {
     const [genres, setGenre] = useState<string[]>([]);  
+    const [artistImg, setArtistImg] = useState<string | null>(null);
+    const [topTracks, setTopTracks] = useState<any[]>([]); 
     //const [genreDictionary, setGenreDictionary] = useState<genre>({});
     const [query, setQuery] = useState(''); 
     const [artists, setArtists] = useState<any[]>([]); 
     const [loading, setLoading] = useState(false); 
     const [error, setError] = useState<string | null>(null);
     const [hideMenu, setMenu] = useState(true);
+    const [entered, setEntered] = useState(false);
+
+    //stores the api url needed to call baclend functions
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     //function to handle search query & calls backend search-artist api
-    const Search = async () => {
+    const searchFunc = async () => {
         //Use var for debugging
         let check: number = 0;
         
@@ -28,7 +34,7 @@ function App() {
         //try calling backend api search-artist to get a list of artists with the search query
         try {
             //get response from backend/routes/spotify.ts/search-artist when q = search input
-            const response = await axios.get('http://localhost:3001/spotify/search-artist', {       //REPLACE THE PORT #s WITH YOUR BACK END PORT TO MAKE IT WORK (someone automate this pls)
+            const response = await axios.get(`${apiUrl}/spotify/search-artist`, {
                 params: { q: query },
             });
             //set the search results to state
@@ -38,6 +44,13 @@ function App() {
             response.data.forEach((artist: any) =>{
                     console.log(artist.genres);
             });
+
+            //if user has pressed enter then start the artist detail function to display the artist info in the query
+            //reset set entered so it can be triggered again
+            if (entered == true) {
+                artistDetails(query)
+                setEntered(false)
+            }
             
         }
         //catch any errors and display on page an error
@@ -70,8 +83,6 @@ function App() {
             console.log(i);
         }
         
-        setGenre(findGenreofArtist(artist_names));
-        
         //Check query length, updated to new query
         query_length = query.length;
         
@@ -79,50 +90,13 @@ function App() {
         setMenu(false);
         console.log(query_length);  
     };
-
-    // This will update the search as we type 
-    const search_string = async (value: string) => {
-        if (!value.trim()) return;  
-        setLoading(true);
-        let check:number = 0; 
-        setError(null);  
-        try { const response = await axios.get('http://localhost:3001/spotify/search-artist', {
-                params: { q: value },
-            });
-            setArtists(response.data); 
-            
-            // //Print genres of the artist
-            response.data.forEach((artist: any) => {
-                console.log(artist.genres); 
-             });
-           
-    
-        } catch (err) {
-            
-            //Debug here if we hit error
-            check-=1;
-            for(let i = 0; i < 3; i++){
-                console.log(i);
-            }
-            setError('Failed to search for artists. Please try again.');
-        } 
-        finally {
-
-            //Debug here in case
-            check+=1;
-            for(let i = 0; i < 3; i++){
-                console.log(i);
-            }
-            setLoading(false);
-        }
-    };
-
    
     //function to handle the 'Enter' key press for search
     const KeyPresses = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
+            setEntered(true)
             //calls the function to handle the search
-            Search();
+            searchFunc();
         }
     };
 
@@ -130,33 +104,60 @@ function App() {
     const TypingQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
         let logged = true;
         setMenu(true);
+
+        //while user is typing and hasn't clicked on an artist yet
+        //set the value to the search input and the image amd genre to
+        //nothing so no details are shown until ready, continue to search
+        //so drop down menu is updated
         if(logged){
             const value = e.target.value;          
-            setQuery(value);                
-            search_string(value);  
+            setQuery(value);            
+            setArtistImg(null);
+            setGenre([]); 
+            setTopTracks([])
+            searchFunc()
         }
         logged = false;  
     };
 
-    /*
-    This method takes in the current query. It will search for a singer 
-    with the same name as the query. It will return the genres of that singer
-    if it is successful
-    */
-    const findGenreofArtist = (singer_name: string): string[] => {
-        let genres: string[] = [];
-        let success: number = 0;
-        artists.forEach((singer) => {
-            if (singer.name.toUpperCase() === singer_name.toUpperCase()) {
-                genres = singer.genres;
-            }
-        });
+    //function that sets all the artist deatils such as genres and images
+    const artistDetails = async (artistName: string) => {
+        //set the query to the artist name
+        setQuery(artistName);
 
-        //We print a failure if we did not find any genres or if there is no matches
-        success = -1;
-        console.log(success);
-    
-        return genres;
+        //find the selected artist in the artists array
+        //by setting all characters to uppercase so they match even if the casing is different
+        const selectedArtist = artists.find(
+            (artist) => artist.name.toUpperCase() === artistName.toUpperCase()
+        );
+
+        //if found...
+        if (selectedArtist) {
+            //... set the genres and image
+            setGenre(selectedArtist.genres || []);
+            setArtistImg(selectedArtist.images?.[0]?.url || null);
+
+
+            //try to search for top tracks by calling back end api
+            try {
+                const response = await axios.get(`${apiUrl}/spotify/artist-top-tracks`, {
+                    params: { id: selectedArtist.id, market: 'US' }, 
+
+                });
+
+                //set top tracks to the response with the array of top tracks
+                setTopTracks(response.data.tracks);
+                console.log(topTracks);
+
+
+
+            } catch (err) {
+                setError('Failed to fetch top tracks. Please try again.');
+            }
+
+        }
+
+        setMenu(false);
     };
      
     //building webpage view
@@ -173,7 +174,7 @@ function App() {
                     <FaSearch
                         //trigger search when the icon is clicked
                         className="search-icon"
-                        onClick={Search}
+                        onClick={searchFunc}
                     />
                     <input
                         type="search"
@@ -194,34 +195,72 @@ function App() {
             {error && <p style={{ color: 'red' }}>{error}</p>} 
 
             {/* Dropdown menu 
-                As the user types into the search bar, we will be able to press the artist name
+                As the user types into the search bar, we will be able to press the artist name and artist details are updated
+                when an artist in the list is clicked on
             */}
-            {query && hideMenu && artists.length > 0 && (<div className="dropdown">
-                <ul>
-                    {artists.map((artist: any, index: number) => (
-                    <li key={index} onClick={() => DropdownMenu(artist.name)}>{artist.name} </li>))}
-                </ul>
-            </div>
-            )}
-
-             {/* 
-             This method will show the genres of an artist by looking at the query.
-             It will list the artists side by side
-             */}
-             {query && genres.length != 0 && (
-                <div className="genre">
-                    <h3>Genres of Artist {query}:</h3>
+            {query && hideMenu && artists.length > 0 && (
+                <div className="dropdown">
                     <ul>
-                        {genres.map((singer_genre, i) => (
-                            <li key={i}>{singer_genre}</li>
-                        ))}
+                        {artists.map((artist: any, index: number) => (
+                            <li key={index} onClick={() => artistDetails(artist.name)}>{artist.name} </li>))}
                     </ul>
                 </div>
             )}
 
-          
-            
-           
+
+             {/* 
+             this willl show the artist details such as the artist image and genres on the LHS
+             */}
+            {query && (
+                <div className="artist-details">
+
+                        {artistImg && (
+                            <img src={artistImg} alt={`${query} Image`} className="artist-image" />
+                        )}
+                        <h2>{query}</h2>
+                        {genres.length > 0 && (
+                            <>
+                                <h3>Genres:
+                                    {genres.map((singer_genre, i) => (
+                                        <li key={i}>{singer_genre}</li>
+                                    ))}</h3>
+                            </>
+                        )}
+                </div>
+            )}
+
+            {/* 
+             this willl show the artist's top track in the form of a heatmap
+             the minimum size is set to 130px just in case the artist's top tracks have a very
+             lowe popularity, it should also show on each bubble the track name and album cover
+             */}
+            {topTracks.length > 0 && (
+                <div className="heatmap-container">
+                    {topTracks.map((track: any, index: number) => {
+
+                        return (
+                            <div
+                                key={index}
+                                className="heatmap-bubble"
+                                style={{
+                                    width: `${Math.max(track.popularity * 2), 130}px`,
+                                    height: `${Math.max(track.popularity * 2), 130}px`,
+
+                                }}
+                                title={track.name}
+                            >
+                                <img
+                                    src={track.album.image.url}
+                                    className="album-cover"
+                                />
+                                <span className="track-name">{track.name}</span>
+                            </div>
+                        )
+                    })
+                    }
+                </div>
+            )}
+
         </div>
     );
 }

@@ -9,7 +9,8 @@ import { SpotifyTrackResponse } from '../types/track';
 const router = express.Router();
 
 router.get('/search-artist', async (req: Request, res: Response) => {
-    console.log('Received search request for:', req.query.q);
+    //uncomment for debugging statement
+    //console.log('Received search request for:', req.query.q);
     const SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search';
     const artistName = req.query.q as string;
 
@@ -38,6 +39,8 @@ router.get('/search-artist', async (req: Request, res: Response) => {
 
 
 router.get('/artist-top-tracks', async (req: Request, res: Response) => {
+    //uncomment for debugging statement
+    console.log('Received search request for:', req.query);
     const { id, market } = req.query;
 
     if (!id || typeof id !== 'string') {
@@ -47,7 +50,7 @@ router.get('/artist-top-tracks', async (req: Request, res: Response) => {
     try {
         // Check if artist and their tracks/albums already exist in the database
         const artistWithTracksAndAlbums = await getArtistWithTracksAndAlbums(id);
-        if (artistWithTracksAndAlbums) {
+        if (artistWithTracksAndAlbums && artistWithTracksAndAlbums.tracks.some((track: any) => track.name !== null)) {
             return res.json(artistWithTracksAndAlbums); // Return early if data exists
         }
 
