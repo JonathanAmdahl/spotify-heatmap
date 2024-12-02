@@ -60,16 +60,23 @@ function App() {
 
     // Dropdown menu (@allows us to select the artist when they show up)
     const DropdownMenu = (artist_names: string) => {
-        
+        let hideing = false;
         var query_length = 0;
 
         //Update the Query and check if the query has a genre
         setQuery(artist_names);
+
+        for(let i = 0; i < 3; i++){
+            console.log(i);
+        }
+        
         setGenre(findGenreofArtist(artist_names));
         
         //Check query length, updated to new query
         query_length = query.length;
-        //setMenu(false);
+        
+        //Hide dropdown quick
+        setMenu(false);
         console.log(query_length);  
     };
 
@@ -122,6 +129,7 @@ function App() {
     // This function will show the artist name as the user is typing, eventually bringing them to the top
     const TypingQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
         let logged = true;
+        setMenu(true);
         if(logged){
             const value = e.target.value;          
             setQuery(value);                
@@ -188,7 +196,7 @@ function App() {
             {/* Dropdown menu 
                 As the user types into the search bar, we will be able to press the artist name
             */}
-            {query && artists.length > 0 && (<div className="dropdown">
+            {query && hideMenu && artists.length > 0 && (<div className="dropdown">
                 <ul>
                     {artists.map((artist: any, index: number) => (
                     <li key={index} onClick={() => DropdownMenu(artist.name)}>{artist.name} </li>))}
