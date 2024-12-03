@@ -49,12 +49,11 @@ label {
     top: 430px;
     left: 50px; 
     width: 200px; 
+    border-radius: 5px;
     background-color: #191414;
     color: white; 
     border: 1px solid #333; 
-    border-radius: 5px; 
     padding: 10px; 
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .artist-details h3 {
@@ -62,17 +61,16 @@ label {
     top: 490px; 
     left: 50px; 
     width: 200px; 
+    padding: 10px;
     background-color: #191414;
     color: white; 
     border: 1px solid #333;
     border-radius: 5px; 
-    padding: 10px; 
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); 
 }
 
 /* SEARCH BAR UI */
 
-.search-container {
+.searching {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -80,7 +78,11 @@ label {
     margin-top: 20px;
 }
 
-.search-input-container {
+.error{
+    color: red;
+}
+
+.search-for-input {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -90,7 +92,7 @@ label {
     padding-left: 10px;
 }
 
-.search-input {
+.find-input {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -100,12 +102,12 @@ label {
     color: #191414;
 }
 
-    .search-input:focus {
-        border: none;
-        outline: none;
-    }
+.find-input:focus {
+    border: none;
+    outline: none;
+}
 
-.search-icon {
+.search-pointer {
     cursor: pointer;
     color: #191414;
     font-size: 20px;
@@ -132,63 +134,49 @@ button {
     background-color: #191414;
     color: white; 
     border: 1px solid #333; 
-    border-radius: 5px; 
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;    
     width: 300px;
-    z-index: 1000;
     padding: 5px 0;
 }
 
-    .dropdown ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
+.dropdown ul {
+    list-style: none;
+    margin: 0;
+}
 
-    .dropdown li {
-        padding: 5px;
-        cursor: pointer;
-        text-align: center;
-    }
+.dropdown li {
+    padding: 5px;
+    cursor: pointer;
+    text-align: center;
+}
 
-        .dropdown li:hover {
-            background-color: #282828;
-        }
+.dropdown li:hover {
+    background-color: #282828;
+}
 
 
 /* HEATMAP UI */
-
-.heatmap-container {
+.heatmap {
+    display: grid;
     position: relative;
-    width: 2200px;
-    height: 1000px;
-    left: 100px;
-    overflow: hidden;
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+    gap: 10px; 
+    width: 100%;
+    max-width: 2200;
+    height: 100%;
+    max-height: 1000;
 }
 
-
-.heatmap-bubble {
-    position: absolute;
-    background-color: #1db954;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.bubble {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    margin: 10px;
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    display: flex;
+    position: relative; 
+    background-color: rgba(51, 183, 99, 0.5); 
 }
 
-.heatmap-bubble:hover {
+.bubble:hover {
     transform: scale(1.1);
 }
 
@@ -198,13 +186,11 @@ button {
     align-items: center;
     transform: translateX(-50%);
     font-weight: bold;
-    font-size: 12px;
+    font-size: 15px;
     color: white;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-    z-index: 1;
 }
 
-.heatmap-bubble img {
+.bubble img {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -215,6 +201,6 @@ button {
     height: auto;
 }
 
-.heatmap-bubble:hover img {
+.bubble:hover img {
     opacity: 1; 
 }
