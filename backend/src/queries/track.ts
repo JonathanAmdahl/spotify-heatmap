@@ -5,7 +5,8 @@ import { SpotifyTrackResponse } from "../types/track";
 export async function insertArtistAndTopTracksIntoDatabase(
     artist: SpotifyArtist,
     tracksResponse: SpotifyTrackResponse
-) {
+) 
+{
     const client = await pool.connect();
 
     try {
@@ -68,7 +69,7 @@ export async function insertArtistAndTopTracksIntoDatabase(
                 INSERT INTO Track (track_id, name, track_number, popularity, href, image_height, image_width, image_link, album_id)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 ON CONFLICT (track_id) DO NOTHING;
-            `;
+            `;    
             const trackValues = [
                 trackId,
                 trackName,

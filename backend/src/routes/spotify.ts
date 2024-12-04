@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get('/search-artist', async (req: Request, res: Response) => {
     //uncomment for debugging statement
-    //console.log('Received search request for:', req.query.q);
+    console.log('Received search request for:', req.query.q);
     const SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search';
     const artistName = req.query.q as string;
 

@@ -21,14 +21,15 @@ function App() {
     const [entered, setEntered] = useState(false);
     const [position, setPositions] = useState<{ width: number; height: number; size: number }[]>([]);
 
-    //stores the api url needed to call baclend functions
+    //stores the api url needed to call backend functions
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    console.log("API URL:", apiUrl);
 
     //function to handle search query & calls backend search-artist api
     const searchFunc = async () => {
         //Use var for debugging
         let check: number = 0;
-        
+        console.log(`Calling API: ${apiUrl}/spotify/search-artist?q=${query}`);
         //returns if empty or only whitespace
         if (!query.trim()) return;
 
@@ -405,9 +406,8 @@ function App() {
                                 key={index}
                                 className="bubble"
                                 style={bubble_Size(track)}
-                                title={track.name}
-                            >
-                                <img src={track.album.images?.[0]?.url || null} alt={track.album.name} />
+                                title={track.name}>
+                               <img src={track.album.image.link || null} alt={track.album.name} />
                                 <span className="track-name">{track.name}</span>
                             </div>
                         )
