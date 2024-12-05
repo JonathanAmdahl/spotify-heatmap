@@ -8,11 +8,10 @@ import { FaSearch } from 'react-icons/fa';
 
 function App() {
     //useStates we will need for our website. Each of these usetates will be important for the website so we can store and retrrieve information
-    //regarding our artists and their respective attributes
+    //regarding our artists and their respective attributes, also alerts us when we need to display smth or not
     const [genres, setGenre] = useState<string[]>([]);  
     const [singerImg, setSingerImg] = useState<string | null>(null);
-    const [topTracks, setTRack] = useState<any[]>([]); 
-    //const [genreDictionary, setGenreDictionary] = useState<genre>({});
+    const [topTracks, setTrack] = useState<any[]>([]);
     const [query, setQuery] = useState(''); 
     const [artists, setArtists] = useState<any[]>([]); 
     const [loads, setLoads] = useState(false); 
@@ -21,15 +20,19 @@ function App() {
     const [entered, setEntered] = useState(false);
     const [position, setPositions] = useState<{ width: number; height: number; size: number }[]>([]);
 
-    //stores the api url needed to call baclend functions
+    //stores the api url needed to call backend functions
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    
+    /*
+        HANDLING ALL SEARCH BAR FUNCTION STUFF
+    */
 
     //function to handle search query & calls backend search-artist api
     const searchFunc = async () => {
         //Use var for debugging
         let check: number = 0;
         
-        //returns if empty or only whitespace
+        //returns if search input is empty or only whitespaces
         if (!query.trim()) return;
 
         //start loading so user knows it's in progress
@@ -43,10 +46,11 @@ function App() {
             const response = await axios.get(`${apiUrl}/spotify/search-artist`, {
                 params: { q: query },
             });
-            //set the search results to state
+
+            //set the search results to useState setArtist
             setArtists(response.data);
             
-            //Catch the genres of an artist and print them to the console
+            //catch the genres of an artist and print them to the console (showing it's populating)
             response.data.forEach((artist: any) =>{
                     console.log(artist.genres);
             });
@@ -60,6 +64,7 @@ function App() {
             }
             
         }
+
         //catch any errors and display on page an error
         catch (err) {
             
@@ -68,6 +73,7 @@ function App() {
             console.log(check);
             setError('Failed to search for artists. Please try again.'); 
         }
+
         //end the loading text
         finally {
 
@@ -79,6 +85,7 @@ function App() {
     };
 
     // Dropdown menu (@allows us to select the artist when they show up)
+    //didn't end up using in the end but left it for future uses
     const DropdownMenu = (artist_names: string) => {
         let hideing = false;
         var query_length = 0;
@@ -102,9 +109,10 @@ function App() {
     //function to handle the 'Enter' key press for search
     const KeyPresses = (e: React.KeyboardEvent) => {
         let check: number = 1;
+
+        //if user hits enter, will call and let searchFunc know to show artist details as well
         if (e.key === 'Enter') {
             setEntered(true);
-            //calls the function to handle the search
             searchFunc();
             console.log(check);
         }
@@ -114,7 +122,7 @@ function App() {
         console.log(check);
     };
 
-    // This function will show the artist name as the user is typing, eventually bringing them to the top
+    //This function will show and update the artist name as the user is typing, eventually bringing them to the top
     const TypingQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
         let logged = true;
         setMenu(true);
@@ -128,52 +136,15 @@ function App() {
             setQuery(value);            
             setSingerImg(null);
             setGenre([]); 
-            setTRack([])
+            setTrack([])
             searchFunc()
         }
         logged = false;  
     };
 
     /*
-    Calculate if two circles overlap
-    We will take the radius, x, y of two circles
-    Then we will check if they overlap in some capacity
-    If they do overlap, return true otherwise false
+        ARTIST DETAIL FUNCTION
     */
-    const intersectionOfCircles = (width_of_first_bubble: number, length_of_first_bubble: number, radius_0: number, width_of_fsecond_bubble: number, length_of_second_bubble: number, radius_1: number): boolean => {
-        let radius_together = radius_0 + radius_1;
-        let width_together = (width_of_first_bubble - width_of_fsecond_bubble) ** 2;
-        let length_together = (length_of_second_bubble - length_of_first_bubble) ** 2;
-        let ans = Math.sqrt(width_together + length_together);
-        return ans <= radius_together;
-    }
-
-    /*
-    This method will be used to determine if two circles overlap
-    We will iterate through every bubble currently on the website
-    We will check if the current bubble overlaps with any of the previous bubbles
-    If it does, return true otherwise false
-    */
-    const bubble_Alert = (w: number, y: number, big: number) => {
-        //let i = 0;
-        let no_hit = false;
-        let track_bubble: any;
-
-        //Iterate through the bubbles and check for any overlap
-        for(let i = 0; i < position.length; i++){
-            track_bubble = position[i];
-            let overlapse = intersectionOfCircles(w + big, y + big, big, track_bubble.width + track_bubble.size/2, track_bubble.height + track_bubble.size/2, track_bubble.size/2);
-        
-            //overlap on the bubble
-            if (overlapse) {
-                return true; 
-            }
-        }
-
-        //No overlape
-        return no_hit;
-
-    }
 
     //function that sets all the artist deatils such as genres and images
     const artistDetails = async (artistName: string) => {
@@ -195,7 +166,7 @@ function App() {
             setSingerImg(singer.images?.[0]?.url || null);
 
 
-            //Get top tracks by calling back end api
+            //Get artist's top tracks by calling back end api
             try {
                 const response = await axios.get(`${apiUrl}/spotify/artist-top-tracks`, {
                     params: { id: singer.id, }, 
@@ -204,9 +175,8 @@ function App() {
                 console.log(check);
 
                 //set top tracks to the response with the array of top tracks
-                setTRack(response.data.tracks);
+                setTrack(response.data.tracks);
                 console.log(topTracks);
-
 
 
             } catch (err) {
@@ -223,6 +193,51 @@ function App() {
     };
 
     /*
+        BUBBLE COSMETICS HERE (an attempt)
+    */
+
+    /*
+    Calculate if two circles overlap
+    We will take the radius, x, y of two circles
+    Then we will check if they overlap in some capacity
+    If they do overlap, return true otherwise false
+    */
+    const intersection = (bubbleW1: number, bubbleL1: number, rad0: number, bubbleW2: number, bubbleL2: number, rad1: number): boolean => {
+        const rad_tgt = rad0 + rad1;
+        const width_tgt = (bubbleW1 - bubbleW2) ** 2;
+        const length_tgt = (bubbleL2 - bubbleL1) ** 2;
+        const ans = Math.sqrt(width_tgt + length_tgt);
+        return ans <= rad_tgt;
+    }
+
+    /*
+    This method will be used to determine if two circles overlap
+    We will iterate through every bubble currently on the website
+    We will check if the current bubble overlaps with any of the previous bubbles
+    If it does, return true otherwise false
+    */
+    const bubble_Alert = (w: number, l: number, big: number) => {
+        //let i = 0;
+        const no_hit = false;
+        let track_bubble: any;
+
+        //Iterate through the bubbles and check for any overlap
+        for (let i = 0; i < position.length; i++) {
+            track_bubble = position[i];
+            const overlapse = intersection(w + big, l + big, big, track_bubble.width + track_bubble.size / 2, track_bubble.height + track_bubble.size / 2, track_bubble.size / 2);
+
+            //overlap on the bubble
+            if (overlapse) {
+                return true;
+            }
+        }
+
+        //No overlape
+        return no_hit;
+
+    }
+
+    /*
     This function will calculate the size of the bubble of each track
     Additionally, it will position the bubbles on our website
     */
@@ -230,9 +245,9 @@ function App() {
        
        //Instance variables to add our bubbles to the website
        let track_Real = false;
-       let interleave = true;
-       let width_W: number = 0;
-       let length: number = 0;
+       let inter = true;
+       let w: number = 0;
+       let l: number = 0;
 
        //Check track popularity
        console.log(track.popularity);
@@ -243,13 +258,13 @@ function App() {
         track_Real = true;
        }
 
-       //If track is real.....
+       //If track is exists.....
        if(track_Real){
             
             //Find popularity of track and multiply it by 3. This will be the size ouf our bubble
+            //makes it so super unpopular tracks are still visible to users
             let pop : number = 0;
-            pop = track.popularity;
-            pop = pop * 3;
+            pop = track.popularity * 3;
 
             let repeat = 0;
             if(position.length != 0){
@@ -261,39 +276,39 @@ function App() {
                 If we cannot find a new position, we will break from the while loop and give the current track a random
                 location that may overlap other bubbles 
                 */
-                while(interleave && repeat < 100){
-                    width_W = (Math.random() * (2200 - pop));
-                    length = (Math.random() * (1000 - pop));
-                    interleave = bubble_Alert(width_W, length, pop/2);
+                while (inter && repeat < 100){
+                    w = (Math.random() * (window.innerWidth - pop));
+                    l = (Math.random() * (window.innerHeight - pop));
+                    inter = bubble_Alert(w, l, pop/2);
                     repeat += 1;
                     console.log("Overlap");
                 }
 
                 /*
-                If we successfully found our bubble location, return our bubble to the website
+                If we successfully found our bubble location (or we tried to for 100 tries), return our bubble to the website
                 */
-                if(interleave === false){
+                if (inter === false){
                     //setPositions([...position, {width: width_W, height: length, size: pop}]);
                     return  {
                         width: `${(pop)}px`,
                         height: `${(pop)}px`,
-                        left: `${width_W}px`,
-                        top: `${length}px`,
+                        left: `${w}px`,
+                        top: `${l}px`,
                     };
                 }
 
                 /*
-                If we did not find our bubble a unique location, give it a random location
+                If we did not find our bubble a unique location, give it a random location (failed to find a new spot without overlap)
                 */
                 else{
-                    let new_Width = (Math.random() * (2200 - pop));
-                    let new_length = (Math.random() * (1000 - pop));
+                    const newW = (Math.random() * (window.innerWidth - pop));
+                    const newL = (Math.random() * (window.innerHeight - pop));
                     return  {
                         
                         width: `${(pop)}px`,
                         height: `${(pop)}px`,
-                        left: `${new_Width}px`,
-                        top: `${new_length}px`,
+                        left: `${newW}px`,
+                        top: `${newL}px`,
                     };
                 }
              
@@ -304,30 +319,34 @@ function App() {
             Also, add it to our array which we will use to compare locations
             */
             else{
-                width_W = (Math.random() * (2200 - pop));
-                length = (Math.random() * (1000 - pop));
+                w = (Math.random() * (window.innerWidth - pop));
+                l = (Math.random() * (window.innerHeight - pop));
                 console.log("First");
-                setPositions([...position, {width: width_W, height: length, size: pop}]);
+                setPositions([...position, {width: w, height: l, size: pop}]);
                 return  {
                     width: `${(pop)}px`,
                     height: `${(pop)}px`,
-                    left: `${width_W}px`,
-                    top: `${length}px`,
+                    left: `${w}px`,
+                    top: `${l}px`,
                 };
                
             }
     }
     }
 
-    
+    /*
+
+        WEBPAGE CODE
+
+     */
 
     //building webpage view
     return (
         <div className="App">
 
             {/*Add spotify image to top left (imitate spotify pg)
-              We will also add a search bar to the center to look up artists 
-            */}
+              We will also add a search bar to the center to look up artists
+              */}
             <img src="/spotify.png" alt="Spotify logo" /> 
             <label htmlFor="search">Search for Artists</label>
             <div className="searching">
@@ -351,7 +370,7 @@ function App() {
                 </div>
             </div>
 
-            {/* load message */}
+            {/* loading message */}
             {loads && <p>Loading..</p>} 
             {error && <p className="error">{error}</p>} 
 
@@ -359,6 +378,7 @@ function App() {
                 As the user types into the search bar, we will be able to press the artist name and artist details are updated
                 when an artist in the list is clicked on
             */}
+
             {query && hideMenu && artists.length > 0 && (
                 <div className="dropdown">
                     <ul>
@@ -373,13 +393,17 @@ function App() {
              {/* 
              this willl show the artist details such as the artist image and genres on the LHS
              */}
+
             {query && (
                 <div className="artist-details">
 
-                        {singerImg && (
+                    {singerImg && (
+                            //show artist image
                             <img src={singerImg} alt={`${query} Image`} className="artist-image" />
-                        )}
-                        <h2>{query}</h2>
+                    )}
+                    
+                    <h2>{query}</h2>
+
                         {genres.length > 0 && (
                             <>
                                 <h3>Genres:
@@ -393,8 +417,8 @@ function App() {
 
             {/* 
              this willl show the artist's top track in the form of a heatmap and randomize
-             it's position so that it's somewhere in the heatmap container,
-             it should also show on each bubble the track name and album cover
+             it's position so that it's somewhere in the heatmap container by calling bubble_size,
+             it should also show on each bubble the track name and album cover on hover
              */}
             {topTracks.length > 0 && (
                 <div className="heatmap">
@@ -405,9 +429,8 @@ function App() {
                                 key={index}
                                 className="bubble"
                                 style={bubble_Size(track)}
-                                title={track.name}
-                            >
-                                <img src={track.album.images?.[0]?.url || null} alt={track.album.name} />
+                                title={track.name}>
+                                <img src={track.album.image.link || null} alt={track.album.name} />
                                 <span className="track-name">{track.name}</span>
                             </div>
                         )
