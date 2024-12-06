@@ -86,9 +86,9 @@ function App() {
 
     // Dropdown menu (@allows us to select the artist when they show up)
     //didn't end up using in the end but left it for future uses
+    /*
     const DropdownMenu = (artist_names: string) => {
-        let hideing = false;
-        var query_length = 0;
+        let query_length = 0;
 
         //Update the Query and check if the query has a genre
         setQuery(artist_names);
@@ -105,6 +105,7 @@ function App() {
         setMenu(false);
         console.log(query_length);  
     };
+    */
    
     //function to handle the 'Enter' key press for search
     const KeyPresses = (e: React.KeyboardEvent) => {
