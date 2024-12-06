@@ -15,7 +15,7 @@ router.get('/search-artist', async (req: Request, res: Response) => {
     const artistName = req.query.q as string;
 
     if (!artistName) return res.status(400).json({ error: 'Artist name is required' });
-
+    
     try {
         const accessToken = await getSpotifyAccessToken();
         const response = await axios.get(SPOTIFY_SEARCH_URL, {
@@ -46,7 +46,7 @@ router.get('/artist-top-tracks', async (req: Request, res: Response) => {
     if (!id || typeof id !== 'string') {
         return res.status(400).json({ error: 'Artist ID (id) is required and must be a string.' });
     }
-
+ 
     try {
         // Check if artist and their tracks/albums already exist in the database
         const artistWithTracksAndAlbums = await getArtistWithTracksAndAlbums(id);
